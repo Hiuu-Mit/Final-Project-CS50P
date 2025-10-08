@@ -35,10 +35,12 @@ def add_student(filename):
             for line in reader:
                 if name == line["name"]:
                     print("")
-                    print("Student existed")
-                    return
+                    # print("Student existed")
+                    return "Student existed"
     else: 
+        print("")
         print("File does not exist. Creating a new file")
+        # return "File does not exist. Creating a new file"
 
 
     with open(filename, "a") as file:
@@ -46,22 +48,29 @@ def add_student(filename):
          if os.path.getsize(filename) == 0:
             writer.writeheader()
          writer.writerow({"name": name, "literature": literature_grade, "math": math_grade, "english": english_grade})
+
+
 def view_students(filename):
     if os.path.exists(filename):
         with open(filename, "r") as file:
             reader = list(csv.DictReader(file))
+            if not reader:
+                print("")
+                return "No student info found"
             # for line in reader:
             #     print(f"Student's name: {line['name']}, literature points: {line["literature"]}, math points: {line['math']}, english points: {line["english"]}")
             print("")
             show_student = tabulate(reader, headers = "keys", tablefmt = "grid")
             return show_student
     else:
-        print("File does not exist")
+        print("")
+        return "File does not exist"
+    
 
 def average_score_calculate(filename, name):
     if os.path.exists(filename):
         with open(filename, "r") as file:
-            reader = csv.DictReader(file)
+            reader = list(csv.DictReader(file))
             student_found = False
             for line in reader:
                 if name == line["name"]:
@@ -73,14 +82,11 @@ def average_score_calculate(filename, name):
                     return average
         
             if not student_found:
-                print("")
-                print("Student not found")
-                return
+                return None
                     
     
     else:
-        print("File does not existed")
-        return
+        return None
 
 
    
@@ -90,12 +96,18 @@ def show_average_score(filename, name):
     if average is not None:
         print("")
         return f"{name} average score is {average:.2f}"
+    else: 
+        print("")
+        return "Student not found or file does not existed"
 
 def ranking_students(filename):
     if os.path.exists(filename):
         sorted_student = []
         with open(filename, "r") as file:
-            reader = csv.DictReader(file)
+            reader = list(csv.DictReader(file))
+            if not reader:
+                print("")
+                return "Student info not found"
             
             for line in reader:
                 average = average_score_calculate(filename, line["name"])
@@ -103,7 +115,11 @@ def ranking_students(filename):
             # for student in sorted(sorted_student, key = lambda student : student["score"]):
             #     print(f"{student["name"]}, score: {student["score"]}")
             sorted_student = sorted(sorted_student, key = lambda student : student["average score"], reverse=True)
-            print(tabulate(sorted_student, headers = "keys", tablefmt = "grid"))
+            show_ranking_studetns = tabulate(sorted_student, headers = "keys", tablefmt = "grid")
+            return show_ranking_studetns
+    else:
+        print("")
+        return "File does not existed"
                
 
 
@@ -112,7 +128,10 @@ def delete_student(filename, name):
     if os.path.exists(filename):
         with open(filename, "r") as file:
             students = []
-            reader = csv.DictReader(file)
+            reader = list(csv.DictReader(file))
+            if not reader:
+                print("")
+                return "Student info not found"
             for row in reader:
                 if name != row["name"]:
                     students.append(row)
@@ -125,7 +144,8 @@ def delete_student(filename, name):
 
            
     else:
-        print("File does not exist")
+        print("")
+        return "File does not exist"
 
 def main():
     # filename = "students.csv"
@@ -148,10 +168,10 @@ def main():
             average_score_calculate(file_path, name)
             print(show_average_score(file_path, name))
         elif choice =="4":
-            ranking_students(file_path)
+           print(ranking_students(file_path))
         elif choice == "5":
             name = input("Enter student's name: ").strip()
-            delete_student(file_path, name)
+            print(delete_student(file_path, name))
         elif choice == "6":
             break
         else:
